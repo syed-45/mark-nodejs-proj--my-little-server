@@ -2,12 +2,15 @@ import express from "express";
 import ponyData from "../data/ponies.json";
 import { seasonOneEpisodes } from "./episodes";
 import { pickRandom } from "./random";
+import helloWorldDAta from "../data/hello-world.json"
 
 const app = express();
 const serverStartDate = new Date();
 let serverHitCount = 0;
+let arrVisited: string[] = []
 
 app.get("/", (req, res) => {
+  arrVisited.push("/")
   res.send(
     "This is the default path - and it isn't very interesting, sorry. \nTry visiting localhost:4000/creation-time, localhost:4000/current-time"
   );
@@ -17,13 +20,12 @@ app.get("/creation-time", (req, res) => {
   res.json({
     message: `The server was started at ${serverStartDate.toTimeString()}`,
     utc: serverStartDate.toUTCString(),
-    countedAsHit: false,
+    countedAsHit: false,    
   });
 });
 
 app.get("/current-time", (req, res) => {
   const dateOfRequestHandling = new Date();
-
   res.json({
     message: `The current date is ${dateOfRequestHandling.toTimeString()}`,
     utc: dateOfRequestHandling.toUTCString(),
@@ -32,6 +34,7 @@ app.get("/current-time", (req, res) => {
 });
 
 app.get("/hits", (req, res) => {
+  arrVisited.push('/hits')
   serverHitCount += 1;
   res.json({
     note: "We've registered your hit!",
@@ -49,11 +52,17 @@ app.get("/hits-stealth", (req, res) => {
 });
 
 app.get("/ponies", (req, res) => {
+  arrVisited.push('/ponies')
   res.json({
     message: "Loaded dummy JSON data:",
     data: ponyData,
     countedAsHit: false,
   });
+});
+
+app.get("/ponies/random", (req, res) => {
+  arrVisited.push('/ponies/random')
+  res.json(pickRandom(ponyData.members)) ;  
 });
 
 app.get("/season-one", (req, res) => {
@@ -71,8 +80,21 @@ app.get("/season-one/random", (req, res) => {
   });
 });
 
+
+app.get("/hello-world", (req, res) => {
+  res.json({
+    countedAsHit: false,
+    data: helloWorldDAta  
+  });
+});
+
+app.get("/history", (req, res) => {
+  arrVisited.push("/history")
+  res.json({routes: arrVisited})
+});
+
 // using 4000 by convention, but could be changed
-const PORT_NUMBER = 4000;
+const PORT_NUMBER = 5050;
 
 app.listen(PORT_NUMBER, () => {
   console.log(
